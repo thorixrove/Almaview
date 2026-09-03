@@ -46,6 +46,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               {children}
             </main>
             {/* Footer */}
+            <footer className="relative z-10 border-t border-white/7 py-12  mx-auto px-6 flex flex-wrap items-center justify-center text-stone-400">
+              Made by Almanako
+            </footer>
           </ThemeProvider>
         </body>
       </html>
