@@ -281,7 +281,7 @@ export default function LandingPage() {
           <SectionHeading gray="Built for both sides" gold="of the table" />
         </div>
 
-        <div>
+        <div className="grid md:grid-cols-2 gap-6">
           {ROLES.map((role) => (
             <div
               key={role.label}

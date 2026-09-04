@@ -51,6 +51,8 @@ const Header = async () => {
                         </>
                     )}
 
+
+                    {/* Credits */}
                     <CreditButton
                         role={user?.role === "INTERVIEWER" ? "INTERVIEWER" : "INTERVIEWEE"}
                         credits={(user?.role === "INTERVIEWER" ? user?.creditBalance : user?.credits) ?? 0}
