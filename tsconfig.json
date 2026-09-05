@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "components/theme-provider.jsx", "app/page.jsx", "app/(main)/onboarding/page.jsx", "actions/onboarding.js", "components/demo-components-animate-code.jsx", "hooks/use-controlled-state.jsx", "hooks/use-is-in-view.jsx", "hooks/use-fetch.js"  ],
+, "components/theme-provider.jsx", "app/page.jsx", "app/(main)/onboarding/page.jsx", "actions/onboarding.js", "components/demo-components-animate-code.jsx", "hooks/use-controlled-state.jsx", "hooks/use-is-in-view.jsx", "hooks/use-fetch.js", "lib/helpers.js", "app/(main)/explore/components/InterviewerCard.jsx", "app/(main)/explore/components/ExploreGrid.jsx", "app/(main)/interviewers/[id]/_components/SlotPicker.jsx"  ],
   "exclude": ["node_modules"]
 }

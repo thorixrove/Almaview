@@ -17,7 +17,7 @@ export const completeOnboarding = async (data) => {
     }
 
     if (role === "INTERVIEWER") {
-        if (!title || !company || !yearsExp || !bio || categories?.length) {
+        if (!title || !company || !yearsExp || !bio || !categories?.length) {
             throw new Error("Please fill in all required fields")
         }
     }
