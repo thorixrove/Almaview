@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { GrayTitle, SectionLabel } from "@/components/reusables";
 import SlotPicker from "./_components/SlotPicker";
 import { StarsBackground } from "@/components/animate-ui/components/backgrounds/stars";
-import { ArrowLeft, Icon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CATEGORY_LABEL, EXPECT_ITEMS } from "@/lib/data";
@@ -36,7 +36,7 @@ export default async function InterviewerProfilePage({ params }) {
     <main className="min-h-screen bg-black">
       {/* Hero identity banner */}
       <section className="relative border-b border-white/8 overflow-hidden">
-        <StarsBackground />
+        <StarsBackground className="absolute inset-0"/>
 
         <div className="relative max-w-6xl mx-auto px-8 pt-20 pb-14 flex flex-col gap-8">
           <Link href="/explore">
