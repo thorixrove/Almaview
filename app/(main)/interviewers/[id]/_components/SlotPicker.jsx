@@ -1,20 +1,20 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { bookSlot } from "@/actions/booking";
+import { GrayTitle } from "@/components/reusables";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { GrayTitle } from "@/components/reusables";
-import { bookSlot } from "@/actions/booking";
-import useFetch from "@/hooks/use-fetch";
 import UpgradeModal from "@/components/UpgradeModal";
+import useFetch from "@/hooks/use-fetch";
 import {
   formatDateFull,
-  formatTime,
   formatDateTab,
+  formatTime,
   generateDates,
   generateSlots,
 } from "@/lib/helpers";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 
 const SLOT_DURATION_MINUTES = 45;
@@ -54,13 +54,13 @@ export default function SlotPicker({
       selectedDate,
       availabilty.startTime,
       availabilty.endTime,
-      interviewer.bookingAsInterviewer ?? [],
+      interviewer.bookingsAsInterviewer ?? [],
       SLOT_DURATION_MINUTES
     )
-  }, [selectedDate, availabilty, interviewer.bookingAsInterviewer])
+  }, [selectedDate, availabilty, interviewer.bookingsAsInterviewer])
 
   useEffect(() => {
-    if (data?.success && data.streamCallid) {
+    if (data?.success && data.streamCallId) {
       router.push(`/appointments`);
     }
   }, [data, router])

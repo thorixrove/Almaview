@@ -1,16 +1,16 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect, notFound } from "next/navigation";
-import { db } from "@/lib/prisma";
 import { getInterviewerProfile } from "@/actions/booking";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { GrayTitle, SectionLabel } from "@/components/reusables";
-import SlotPicker from "./_components/SlotPicker";
 import { StarsBackground } from "@/components/animate-ui/components/backgrounds/stars";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { GrayTitle, SectionLabel } from "@/components/reusables";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CATEGORY_LABEL, EXPECT_ITEMS } from "@/lib/data";
+import { db } from "@/lib/prisma";
+import { currentUser } from "@clerk/nextjs/server";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import SlotPicker from "./_components/SlotPicker";
 
 
 export default async function InterviewerProfilePage({ params }) {
@@ -59,12 +59,12 @@ export default async function InterviewerProfilePage({ params }) {
             </Avatar>
             <div className="flex flex-col gap-3 min-w-0 pt-1">
               <h1 className="font-serif text-[clamp(2rem,4vw,3rem)] leading-[1.05] tracking-tight">
-                <GrayTitle>{interviewer.title}</GrayTitle>
+                <GrayTitle>{interviewer.name}</GrayTitle>
               </h1>
 
-              {interviewer.title && interviewer.compnany && (
+              {interviewer.title && interviewer.company && (
                 <p className="text-base text-stone-400 font-light">
-                  {interviewer.title}
+                  {interviewer.title} at {interviewer.company}
                   <span className="text-stone-700">.</span>
                 </p>
               )}
@@ -111,12 +111,12 @@ export default async function InterviewerProfilePage({ params }) {
             </div>
           )}
 
-          {interviewer.categories?.lenth > 0 && (
+          {interviewer.categories?.length > 0 && (
             <div className="bg-[#0f0f11] border border-white/10 rounded-2xl p-8 flex flex-col gap-5">
               <div>
                 <SectionLabel>Specialities</SectionLabel>
                 <p className="text-sm text-stone-500 font-light mt-1">
-                  Interview categories rhis expert covers.
+                  Interview categories this expert covers.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2.5">

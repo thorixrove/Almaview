@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import { CATEGORIES } from "@/lib/data";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import InterviewerCard from "./InterviewerCard";
 
 
 export default function ExploreGrid({ Interviewers }) {
     const [activeCategory, setActiveCategory] = useState(null)
-    const [search, setSearch] = useState(" ")
+    const [search, setSearch] = useState("")
 
     const filtered = useMemo(() => {
         return Interviewers.filter((i) => {
