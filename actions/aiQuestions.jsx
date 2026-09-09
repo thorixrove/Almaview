@@ -1,6 +1,6 @@
 "use server";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { currentUser } from "@clerk/nextjs/server";
 
 const CATEGORY_PROMPTS = {
@@ -19,15 +19,14 @@ const CATEGORY_PROMPTS = {
     "React Native, iOS/Android, performance, offline support, app lifecycle",
 };
 
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
 export const generateInterviewQuestions = async ({ category }) => {
   const user = await currentUser();
   if (!user) throw new Error("Unauthorized");
 
   if (!category || !CATEGORY_PROMPTS[category])
     throw new Error("Invalid category");
-
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const prompt = `You are an expert technical interviewer. Generate 6 interview questions for a ${category} role covering: ${CATEGORY_PROMPTS[category]}.
 
@@ -36,8 +35,18 @@ For each question, provide a concise but complete answer (2-4 sentences) that an
 Respond ONLY with a valid JSON array. No markdown, no backticks, no explanation. Example format:
 [{"question": "...", "answer": "..."}, {"question": "...", "answer": "..."}]`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
+  const completion = await groq.chat.completions.create({
+    model: "openai/gpt-oss-20b",
+    messages: [
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    temperature: 0.7,
+  });
+
+  const text = completion.choices[0]?.message?.content?.trim() ?? "";
   const clean = text.replace(/^```json|^```|```$/gm, "").trim();
   const questions = JSON.parse(clean);
 
