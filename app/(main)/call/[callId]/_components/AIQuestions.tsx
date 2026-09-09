@@ -72,7 +72,7 @@ export default function AIQuestionsPanel({ categories }) {
             <div key={i}
               className="rounded-xl border border-white/8 bg-[#141417] p-4 flex flex-col gap-2">
               <p className="text-sm text-stone-200 font-medium leading-snug">
-                {i + 1}. {q.questions}
+                {i + 1}. {q.question}
               </p>
               <div className="h-px bg-white/5" />
               <p className="text-xs text-stone-500 font-light leading-relaxed">
