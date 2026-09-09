@@ -180,9 +180,9 @@ export function AppointmentCard({ booking, mode, isPast = false }) {
                             </Button>
                         )}
 
- {/* (has?.({ plan: "starter" }) || has?.({ plan: "pro" })) &&  */}
+                        {/* (has?.({ plan: "starter" }) || has?.({ plan: "pro" })) &&  */}
                         {feedback &&
-                           (
+                            (
                                 <>
                                     <Button
                                         variant="outline"

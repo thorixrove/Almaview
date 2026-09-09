@@ -17,9 +17,13 @@ import "@stream-io/video-react-sdk/dist/css/styles.css";
 import {
     Channel,
     Chat,
+    GlobalModal,
+    MessageActions,
     MessageComposer,
     MessageList,
     Window,
+    WithComponents,
+    defaultMessageActionSet,
     useCreateChatClient,
 } from "stream-chat-react";
 import "stream-chat-react/dist/css/index.css";
@@ -29,11 +33,21 @@ import { Loader2, MessageSquare, Sparkles } from "lucide-react";
 import AIQuestionsPanel from "./AIQuestions";
 
 
-// Drawer height presets (vh units)
-const DRAWER_MIN_VH = 30   // smallest height when dragged down (still visible, "peek" state)
-const DRAWER_DEFAULT_VH = 55  // default open height
-const DRAWER_MAX_VH = 90   // fully expanded when dragged up
-const DRAWER_CLOSE_THRESHOLD_VH = 20 // drag below this -> drawer closes completely
+// Drawer height presets (vh units) - mobile only
+const DRAWER_MIN_VH = 30
+const DRAWER_DEFAULT_VH = 55
+const DRAWER_MAX_VH = 90
+const DRAWER_CLOSE_THRESHOLD_VH = 20
+
+
+// Menghilangkan opsi "Thread Reply" dari menu konteks pesan, tapi tetap
+// menyisakan aksi lain (delete, edit, pin, dst).
+const MessageActionsWithoutThread = () => {
+    const messageActionSet = defaultMessageActionSet.filter(
+        ({ placement, type }) => placement === "quick-dropdown-toggle" || type !== "reply"
+    )
+    return <MessageActions messageActionSet={messageActionSet} />
+}
 
 
 export default function CallUI({
@@ -62,7 +76,6 @@ export default function CallUI({
     })
 
 
-    // Auto-stop recording before leaving
     const handleLeave = useCallback(async () => {
         try {
             if (call) {
@@ -78,7 +91,6 @@ export default function CallUI({
     }, [call, onLeave])
 
 
-    // Chat client - same token works for both Video + Chat SDKs
     const chatClient = useCreateChatClient({
         apiKey,
         tokenOrProvider: token,
@@ -95,6 +107,8 @@ export default function CallUI({
     useEffect(() => {
         if (!chatClient) return
 
+        let cancelled = false
+
         const channel = chatClient.channel("messaging", callId, {
             name: "Interview Chat",
             members: [
@@ -105,16 +119,18 @@ export default function CallUI({
 
         channel
             .watch()
-            .then(() => setChatChannel(channel))
+            .then(() => {
+                if (!cancelled) setChatChannel(channel)
+            })
             .catch(console.error)
 
         return () => {
+            cancelled = true
             channel.stopWatching().catch(() => { })
         }
     }, [chatClient, callId, booking])
 
 
-    // Reset drawer to default height whenever it's (re)opened
     useEffect(() => {
         if (panelOpen) {
             setDrawerHeightVh(DRAWER_DEFAULT_VH)
@@ -122,7 +138,7 @@ export default function CallUI({
     }, [panelOpen])
 
 
-    // ---- Drag handlers (pointer events work for both touch & mouse) ----
+    // ---- Drag handlers (mobile drawer only) ----
     const handleDragStart = useCallback((clientY) => {
         dragState.current = {
             dragging: true,
@@ -133,10 +149,8 @@ export default function CallUI({
 
     const handleDragMove = useCallback((clientY) => {
         if (!dragState.current.dragging) return
-
-        const deltaY = clientY - dragState.current.startY // positive = dragged down
+        const deltaY = clientY - dragState.current.startY
         const deltaVh = (deltaY / window.innerHeight) * 100
-
         let nextVh = dragState.current.startHeightVh - deltaVh
         nextVh = Math.min(DRAWER_MAX_VH, Math.max(0, nextVh))
         setDrawerHeightVh(nextVh)
@@ -148,16 +162,11 @@ export default function CallUI({
 
         setDrawerHeightVh((current) => {
             if (current < DRAWER_CLOSE_THRESHOLD_VH) {
-                // dragged down far enough -> close the drawer
                 setPanelOpen(false)
-                return DRAWER_DEFAULT_VH
+                return current // biarkan tinggi apa adanya saat menutup, jangan lompat balik ke default
             }
-            if (current > (DRAWER_MAX_VH + DRAWER_DEFAULT_VH) / 2) {
-                return DRAWER_MAX_VH
-            }
-            if (current < (DRAWER_MIN_VH + DRAWER_DEFAULT_VH) / 2) {
-                return DRAWER_MIN_VH
-            }
+            if (current > (DRAWER_MAX_VH + DRAWER_DEFAULT_VH) / 2) return DRAWER_MAX_VH
+            if (current < (DRAWER_MIN_VH + DRAWER_DEFAULT_VH) / 2) return DRAWER_MIN_VH
             return DRAWER_DEFAULT_VH
         })
     }, [])
@@ -194,73 +203,12 @@ export default function CallUI({
         )
     }
 
-    const PanelContent = (
-        <>
-            {/* Tab switcher */}
-            <div className="flex border-b border-white/8 shrink-0">
-                <button
-                    type="button"
-                    onClick={() => setActiveTab("chat")}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-medium transition-colors ${activeTab === "chat"
-                        ? "text-amber-400 border-b-2 border-amber-400"
-                        : "text-stone-500 hover:text-stone-300"
-                        }`}>
-                    <MessageSquare size={13} />
-                    Chat
-                </button>
-
-                {/* AI Questions tab - interviewer only */}
-                {true && (
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab("ai")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-medium transition-colors ${activeTab === "ai"
-                            ? "text-amber-400 border-b-2 border-amber-400"
-                            : "text-stone-500 hover:text-stone-300"
-                            }`}
-                    >
-                        <Sparkles size={13} />
-                        AI Questions
-                    </button>
-                )}
-
-            </div>
-
-            {/* Panel content */}
-            <div className="flex-1 min-h-0 overflow-y-auto">
-                {activeTab === "chat" ? (
-                    chatClient && chatChannel ? (
-                        <Chat client={chatClient} theme="str-chat__theme-dark">
-                            <Channel channel={chatChannel}>
-                                <Window>
-                                    <MessageList />
-                                    <MessageComposer focus />
-                                </Window>
-                            </Channel>
-                        </Chat>
-                    ) : (
-                        <div className="flex items-center justify-center h-full">
-                            <Loader2 size={18} className="text-stone-600 animate-spin" />
-                        </div>
-                    )
-                ) : (
-                    <div>
-                        <AIQuestionsPanel categories={booking.categories} />
-                    </div>
-                )}
-            </div>
-        </>
-    )
-
     return (
         <div className="h-[92vh] bg-[#0a0a0b] flex flex-col overflow-hidden relative">
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/8 shrink-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                    <Badge
-                        variant="outline"
-                        className="border-white/10 text-stone-500 text-xs"
-                    >
+                    <Badge variant="outline" className="border-white/10 text-stone-500 text-xs">
                         {booking.interviewer.name}
                         <span className="text-stone-700 mx-1.5">×</span>
                         {booking.interviewee.name}
@@ -278,14 +226,14 @@ export default function CallUI({
 
             {/* Body: video + side panel */}
             <div className="flex flex-1 min-h-0 overflow-hidden relative">
-                {/* Video - fills the whole body area (Zoom-style, mobile & desktop) */}
+                {/* Video */}
                 <div className="flex flex-col flex-1 min-w-0 relative">
                     <StreamTheme>
                         <SpeakerLayout participantsBarPosition="bottom" />
                         <CallControls onLeave={handleLeave} />
                     </StreamTheme>
 
-                    {/* Floating chat button - mobile only */}
+                    {/* Floating chat button - mobile only, hidden while drawer open */}
                     {!panelOpen && (
                         <button
                             type="button"
@@ -297,40 +245,99 @@ export default function CallUI({
                     )}
                 </div>
 
-                {/* DESKTOP: permanent side panel */}
-                <div className="hidden md:flex w-85 shrink-0 flex-col border-l border-white/8 bg-[#0a0a0b] min-h-0">
-                    {PanelContent}
-                </div>
+                {/* Backdrop - mobile only, visible only when drawer open */}
+                <div
+                    onClick={() => setPanelOpen(false)}
+                    className={`md:hidden absolute inset-0 z-20 bg-black/60 transition-opacity ${panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                        }`}
+                />
 
-                {/* MOBILE: draggable drawer overlay */}
-                {panelOpen && (
-                    <div className="md:hidden absolute inset-0 z-30 flex flex-col justify-end">
-                        {/* backdrop */}
-                        <div
-                            className="absolute inset-0 bg-black/60"
-                            onClick={() => setPanelOpen(false)}
-                        />
-                        {/* drawer - height controlled by drag */}
-                        <div
-                            className="relative z-10 bg-[#0a0a0b] rounded-t-2xl border-t border-white/10 flex flex-col overflow-hidden"
-                            style={{
-                                height: `${drawerHeightVh}vh`,
-                                transition: dragState.current.dragging ? "none" : "height 0.2s ease-out",
-                            }}
-                        >
-                            {/* Drag handle */}
-                            <div
-                                className="w-full flex items-center justify-center py-2.5 cursor-grab active:cursor-grabbing touch-none shrink-0"
-                                onMouseDown={onHandlePointerDown}
-                                onTouchStart={onHandlePointerDown}
-                            >
-                                <div className="w-10 h-1.5 rounded-full bg-white/20" />
-                            </div>
-
-                            {PanelContent}
-                        </div>
+                {/* SINGLE panel instance - desktop docked sidebar, mobile bottom drawer.
+                    Only ONE <Chat>/<Channel> is ever mounted; responsive classes + CSS vars
+                    switch it between the two layouts so nothing double-renders. */}
+                <div
+                    style={{
+                        "--drawer-h": `${drawerHeightVh}vh`,
+                        "--drawer-y": panelOpen ? "0%" : "100%",
+                    }}
+                    className={`
+                        flex flex-col bg-[#0a0a0b] min-h-0 overflow-hidden
+                        fixed md:relative
+                        inset-x-0 bottom-0 md:inset-auto
+                        z-30 md:z-auto
+                        h-[var(--drawer-h)] md:h-auto
+                        translate-y-[var(--drawer-y)] md:translate-y-0
+                        transition-transform md:transition-none
+                        ${dragState.current.dragging ? "duration-0" : "duration-200"}
+                        rounded-t-2xl md:rounded-none
+                        border-t md:border-t-0 md:border-l border-white/10 md:border-white/8
+                        w-full md:w-85 md:shrink-0
+                    `}
+                >
+                    {/* Drag handle - mobile only */}
+                    <div
+                        className="md:hidden w-full flex items-center justify-center py-2.5 cursor-grab active:cursor-grabbing touch-none shrink-0"
+                        onMouseDown={onHandlePointerDown}
+                        onTouchStart={onHandlePointerDown}
+                    >
+                        <div className="w-10 h-1.5 rounded-full bg-white/20" />
                     </div>
-                )}
+
+                    {/* Tab switcher */}
+                    <div className="flex border-b border-white/8 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab("chat")}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-medium transition-colors ${activeTab === "chat"
+                                ? "text-amber-400 border-b-2 border-amber-400"
+                                : "text-stone-500 hover:text-stone-300"
+                                }`}
+                        >
+                            <MessageSquare size={13} />
+                            Chat
+                        </button>
+
+                        {true && (
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab("ai")}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-medium transition-colors ${activeTab === "ai"
+                                    ? "text-amber-400 border-b-2 border-amber-400"
+                                    : "text-stone-500 hover:text-stone-300"
+                                    }`}
+                            >
+                                <Sparkles size={13} />
+                                AI Questions
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Panel content */}
+                    <div className="flex-1 min-h-0 overflow-y-auto">
+                        {activeTab === "chat" ? (
+                            chatClient && chatChannel ? (
+                                <Chat client={chatClient} theme="str-chat__theme-dark">
+                                    <WithComponents overrides={{ MessageActions: MessageActionsWithoutThread }}>
+                                        <Channel channel={chatChannel} Modal={GlobalModal}>
+                                            <Window>
+                                                <MessageList />
+                                                <MessageComposer focus />
+                                            </Window>
+                                        </Channel>
+                                    </WithComponents>
+                                </Chat>
+                            ) : (
+                                <div className="flex items-center justify-center h-full">
+                                    <Loader2 size={18} className="text-stone-600 animate-spin" />
+                                </div>
+                            )
+                        ) : (
+                            <div>
+                                <AIQuestionsPanel categories={booking.categories} />
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     )
