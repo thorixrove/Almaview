@@ -298,7 +298,7 @@ export default function CallUI({
                         </button>
 
                         {/* ganti "true" jika ingin terlihat */}
-                        {true && (
+                        {isInterviewer && (
                             <button
                                 type="button"
                                 onClick={() => setActiveTab("ai")}

@@ -138,7 +138,7 @@ export default function LandingPage() {
               <strong className="text-stone-400 font-medium">
                 2,400+ engineers
               </strong>{" "}
-              cracked FAANG interview via Prept
+              cracked FAANG interview via Almaview
             </p>
           </div>
         </div>
