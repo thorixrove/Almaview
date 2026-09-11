@@ -54,31 +54,31 @@ export default async function InterviewerDashboardPage() {
 
       {/* Tabbed content */}
 
-      <div>
-        <Tabs>
-          <TabsList>
+      <div className="max-w-6xl mx-auto px-8 py-10">
+        <Tabs defaultValue="earnings">
+          <TabsList className="bg-[#0f0f11] border border-white/10 mb-8 w-full">
             <TabsTrigger value="earnings" className="p-5">
-              <Wallet/> Earnings
+              <Wallet /> Earnings
             </TabsTrigger>
             <TabsTrigger value="appointments" className="p-5">
-              <ClipboardList size={18} className="text-amber-400"/>{" "}
+              <ClipboardList size={18} className="text-amber-400" />{" "}
               Appointments
             </TabsTrigger>
             <TabsTrigger value="availability" className="p-5">
-              <Clock size={18} className="text-amber-400"/> Availability
+              <Clock size={18} className="text-amber-400" /> Availability
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="appointments">
-            <AppointmentsSection appointments={appointments}/>
+            <AppointmentsSection appointments={appointments} />
           </TabsContent>
 
           <TabsContent value="availability">
-            <AvailabilitySection initial={availability}/>
+            <AvailabilitySection initial={availability} />
           </TabsContent>
 
           <TabsContent value="earnings">
-            <EarningsSection stats={stats} history={withdrawalHistory}/>
+            <EarningsSection stats={stats} history={withdrawalHistory} />
           </TabsContent>
         </Tabs>
       </div>

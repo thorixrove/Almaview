@@ -87,7 +87,7 @@ export const getInterviewerAppointments = async () => {
   return db.booking.findMany({
     where: { interviewerId: dbUser.id },
     include: {
-      intervviewee: { select: { name: true, imageUrl: true, email: true } },
+      interviewee: { select: { name: true, imageUrl: true, email: true } },
       feedback: true,
     },
     orderBy: { startTime: "desc" },
@@ -107,7 +107,7 @@ export const getInterviewerStats = async () => {
       creditRate: true,
       bookingsAsInterviewer: {
         where: { status: 'COMPLETED' },
-        select: { creditCharged: true },
+        select: { creditsCharged: true },
       },
     },
   })
@@ -217,6 +217,3 @@ export const getWithdrawalHistory = async () => {
         orderBy: { createdAt: "desc"},
       })
 }
-
-
-

@@ -85,6 +85,9 @@ export default function CallUI({
                 }
                 await call.leave().catch(() => { })
             }
+            // beri jeda singkat agar Stream Chat sempat selesai disconnect
+            // sebelum komponen unmount & navigasi terjadi
+            await new Promise((resolve) => setTimeout(resolve, 150))
         } finally {
             onLeave()
         }
