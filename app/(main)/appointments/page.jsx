@@ -1,11 +1,11 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getIntervieweeAppointments } from "@/actions/appointments";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import PageHeader from "@/components/reusables";
 import { Button } from "@/components/ui/button";
+import { currentUser } from "@clerk/nextjs/server";
 import { CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function MyAppointmentsPage() {
     const user = await currentUser()
@@ -14,7 +14,7 @@ export default async function MyAppointmentsPage() {
     const appointments = await getIntervieweeAppointments()
     const now = new Date()
     const scheduled = appointments.filter(
-        (a) => a.status === "SCHEDULED" && new Date(a.startTime) > now
+        (a) => a.status === "SCHEDULED" && new Date(a.endTime) > now
     )
     const past = appointments.filter(
         (a) => a.status !== "SCHEDULED" || new Date(a.endTime) <= now
@@ -42,7 +42,7 @@ export default async function MyAppointmentsPage() {
                                 No sessions booked yet.
                             </p>
                             <p className="text-sm text-stone-600 mt-1">
-                                Browse expert interviewers and book your forst session,
+                                Browse expert interviewers and book your first session.
                             </p>
                         </div>
                         <Button variant="gold" asChild>
