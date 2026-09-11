@@ -79,8 +79,7 @@ export default function CallUI({
     const handleLeave = useCallback(async () => {
         try {
             if (call) {
-                const isRecording = call.state?.recording
-                if (isRecording) {
+                if (isInterviewer && call.state?.recording) {
                     await call.stopRecording().catch(() => { })
                 }
                 await call.leave().catch(() => { })
