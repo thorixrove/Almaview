@@ -4,7 +4,7 @@ import { StarsBackground } from '@/components/animate-ui/components/backgrounds/
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 
-export const StarsBackground = () => {
+export const StarsBackgroundDemo = () => {
     const { resolvedTheme } = useTheme();
 
     return (
