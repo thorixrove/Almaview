@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { useInView } from 'motion/react';
+import { useInView, type UseInViewOptions } from 'motion/react';
+
+type MarginType = UseInViewOptions['margin'];
 
 export interface UseIsInViewOptions {
   inView?: boolean;
   inViewOnce?: boolean;
-  inViewMargin?: string;
+  inViewMargin?: MarginType;
 }
 
 function useIsInView<T extends HTMLElement = HTMLElement>(
